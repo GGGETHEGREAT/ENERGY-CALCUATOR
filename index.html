@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Home Energy Hub - macOS System Settings Edition</title>
+  <style>
+    :root {
+      --bg-main: #f5f5f7;
+      --bg-sidebar: #e8e8ed;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0f0f5;
+      --bg-row-hover: rgba(0, 0, 0, 0.03);
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --input-bg: #e5e5ea;
+      
+      --accent-blue: #007aff;
+      --accent-green: #34c759;
+      --accent-orange: #ff9500;
+      --accent-red: #ff3b30;
+      --accent-purple: #af52de;
+      --accent-cyan: #32ade6;
+      --accent-grey: #8e8e93;
+
+      --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+      --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    [data-theme="dark"] {
+      --bg-main: #1e1e1e;
+      --bg-sidebar: #252527;
+      --bg-card: #2c2c2e;
+      --bg-card-hover: #3a3a3c;
+      --bg-row-hover: rgba(255, 255, 255, 0.04);
+      --text-primary: #f5f5f7;
+      --text-secondary: #98989d;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --input-bg: #3a3a3c;
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: #121214;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .window-container {
+      width: 100%;
+      max-width: 1080px;
+      height: 780px;
+      background-color: var(--bg-main);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .title-bar {
+      height: 48px;
+      background-color: var(--bg-sidebar);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 8px;
+    }
+
+    .traffic-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-close { background-color: #ff5f56; border: 0.5px solid #e0443e; }
+    .dot-min { background-color: #ffbd2e; border: 0.5px solid #dea123; }
+    .dot-max { background-color: #27c93f; border: 0.5px solid #1aab29; }
+
+    .window-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .theme-toggle:hover {
+      background-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .window-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      background-color: var(--bg-main);
+    }
+
+    .sidebar {
+      width: 230px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    /* Authentic macOS System Settings Squircle Badges */
+    .squircle-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #ffffff;
+      background-color: var(--badge-bg, var(--accent-blue));
+      transition: transform 0.15s ease;
+    }
+
+    .squircle-badge svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background-color: var(--border-color);
+    }
+
+    .nav-item.active {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 24px 32px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background-color: var(--bg-main);
+      transition: background-color 0.25s ease;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .mac-group-card {
+      background-color: var(--bg-card);
+      border-radius: 10px;
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .mac-group-header {
+      padding: 12px 16px 6px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .mac-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      min-height: 44px;
+      position: relative;
+      transition: background-color 0.15s ease;
+    }
+
+    .mac-row:hover {
+      background-color: var(--bg-row-hover);
+    }
+
+    /* Inset separator line like macOS System Settings */
+    .mac-row:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 48px;
+      right: 0;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+
+    .mac-row-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mac-row-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .mac-row-subtext {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .mac-row-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mac-row-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .mac-segmented {
+      position: relative;
+      display: inline-flex;
+      background-color: var(--input-bg);
+      padding: 2px;
+      border-radius: 7px;
+      gap: 2px;
+    }
+
+    .mac-segmented-btn {
+      position: relative;
+      z-index: 1;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: color 0.15s ease;
+      border-radius: 5px;
+    }
+
+    .mac-segmented-btn.active {
+      font-weight: 600;
+    }
+
+    .mac-segmented-slider {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      background-color: var(--bg-card);
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 0;
+    }
+
+    .mac-switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 22px;
+    }
+
+    .mac-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .mac-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--input-bg);
+      transition: .25s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 22px;
+    }
+
+    .mac-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .25s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .mac-slider {
+      background-color: var(--accent-green);
+    }
+
+    input:checked + .mac-slider:before {
+      transform: translateX(16px);
+    }
+
+    .mac-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: filter 0.15s ease, background 0.15s ease;
+    }
+    .mac-btn:active { transform: scale(0.98); }
+    .mac-btn-primary { background-color: var(--accent-blue); color: #ffffff; border: none; font-weight: 600; }
+    .mac-btn-secondary { background-color: var(--bg-card); color: var(--text-primary); }
+
+    .tag-priority {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .tag-essential { background-color: rgba(52, 199, 89, 0.15); color: var(--accent-green); }
+    .tag-flexible { background-color: rgba(255, 149, 0, 0.15); color: var(--accent-orange); }
+
+    /* Modal Sheet Overlay */
+    .mac-sheet-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .mac-sheet-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mac-sheet {
+      width: 440px;
+      background-color: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow-modal);
+      border: 1px solid var(--border-color);
+      transform: scale(0.95);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mac-sheet-overlay.active .mac-sheet {
+      transform: scale(1);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .form-input, .form-select {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--input-bg);
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .color-picker-grid {
+      display: flex;
+      gap: 10px;
+    }
+
+    .color-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s ease;
+    }
+    .color-dot:hover { transform: scale(1.1); }
+    .color-dot.selected { border-color: var(--text-primary); }
+
+    canvas {
+      width: 100%;
+      height: 200px;
+      border-radius: 6px;
+    }
+
+    .tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .tab-pane.active {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="window-container">
+    <!-- macOS Window Titlebar -->
+    <div class="title-bar">
+      <div class="traffic-lights">
+        <div class="traffic-dot dot-close"></div>
+        <div class="traffic-dot dot-min"></div>
+        <div class="traffic-dot dot-max"></div>
+      </div>
+      <div class="window-title">
+        <div class="squircle-badge" style="--badge-bg: var(--accent-blue); width: 18px; height: 18px; border-radius: 4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        Energy Settings
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle Light/Dark Mode">
+        <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+    </div>
+
+    <!-- Window Body -->
+    <div class="window-body">
+      <!-- macOS Sidebar -->
+      <div class="sidebar">
+        <div class="nav-item active" data-tab="overview">
+          <div class="squircle-badge" style="--badge-bg: var(--accent-blue);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          Energy Overview
+        </div>
+        <div class="nav-item" data-tab="appliances">
+          <div class="squircle-badge" style="--badge-bg: var(--accent-purple);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          Smart Appliances
+        </div>
+        <div class="nav-item" data-tab="solar">
+          <div class="squircle-badge" style="--badge-bg: var(--accent-green);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </div>
+          Solar & Net Grid
+        </div>
+        <div class="nav-item" data-tab="optimizer">
+          <div class="squircle-badge" style="--badge-bg: var(--accent-orange);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 20A6 6 0 0 1 5 14V4a1 1 0 0 1 1-1h10a6 6 0 0 1 6 6v2a6 6 0 0 1-6 6h-5v3"/><line x1="11" y1="20" x2="11" y2="14"/></svg>
+          </div>
+          Peak Eco-Optimizer
+        </div>
+        <div class="nav-item" data-tab="load">
+          <div class="squircle-badge" style="--badge-bg: var(--accent-cyan);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          24h Load Profile
+        </div>
+      </div>
+
+      <!-- Main Content Pane -->
+      <div class="main-content">
+        
+        <div class="tab-pane active" id="pane-overview">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Energy Overview</div>
+              <div class="section-subtitle">Real-time power consumption and grid export telemetry</div>
+            </div>
+            <div class="mac-segmented" id="speedControl">
+              <div class="mac-segmented-slider" id="speedSlider"></div>
+              <button class="mac-segmented-btn active" data-speed="1">1x Speed</button>
+              <button class="mac-segmented-btn" data-speed="10">10x Speed</button>
+              <button class="mac-segmented-btn" data-speed="60">60x Speed</button>
+            </div>
+          </div>
+
+          <!-- Grouped Inset Telemetry Cards -->
+          <div class="mac-group-card">
+            <div class="mac-row">
+              <div class="mac-row-left">
+                <div class="squircle-badge" style="--badge-bg: var(--accent-blue);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <div>
+                  <div class="mac-row-title">Instant Power Consumption</div>
+                  <div class="mac-row-subtext" id="valActiveCount">0 Active Loads</div>
+                </div>
+              </div>
+              <div class="mac-row-right">
+                <div class="mac-row-value" id="valInstantPower">0.00 kW</div>
+              </div>
+            </div>
+
+            <div class="mac-row">
+              <div class="mac-row-left">
+                <div class="squircle-badge" style="--badge-bg: var(--accent-green);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                </div>
+                <div>
+                  <div class="mac-row-title">Solar Generation Output</div>
+                  <div class="mac-row-subtext" id="valSolarStatus">Peak Sunshine</div>
+                </div>
+              </div>
+              <div class="mac-row-right">
+                <div class="mac-row-value" id="valSolarOutput">1.20 kW</div>
+              </div>
+            </div>
+
+            <div class="mac-row">
+              <div class="mac-row-left">
+                <div class="squircle-badge" style="--badge-bg: var(--accent-orange);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div>
+                  <div class="mac-row-title">Grid Tariff Rate (TOU)</div>
+                  <div class="mac-row-subtext">Mid-Peak Window</div>
+                </div>
+              </div>
+              <div class="mac-row-right">
+                <div class="mac-row-value">$0.16 / kWh</div>
+              </div>
+            </div>
+
+            <div class="mac-row">
+              <div class="mac-row-left">
+                <div class="squircle-badge" style="--badge-bg: var(--accent-purple);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 20A6 6 0 0 1 5 14V4a1 1 0 0 1 1-1h10a6 6 0 0 1 6 6v2a6 6 0 0 1-6 6h-5v3"/><line x1="11" y1="20" x2="11" y2="14"/></svg>
+                </div>
+                <div>
+                  <div class="mac-row-title">Estimated Carbon Rate</div>
+                  <div class="mac-row-subtext">Grid Offset Active</div>
+                </div>
+              </div>
+              <div class="mac-row-right">
+                <div class="mac-row-value" id="valCo2Rate">0.0 g/min</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Realtime Power Flow Grouped Card -->
+          <div class="mac-group-card" style="padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div style="font-size: 13px; font-weight: 600;">Net Energy Flow Stream</div>
+              <span id="valNetGridFlow" style="font-size: 12px; font-weight: 600; color: var(--accent-green);">Importing 0.00 kW</span>
+            </div>
+            <canvas id="flowCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="pane-appliances">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Smart Appliances</div>
+              <div class="section-subtitle">Configure individual device controls and load classifications</div>
+            </div>
+            <button class="mac-btn mac-btn-primary" id="btnOpenAddModal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Appliance
+            </button>
+          </div>
+
+          <div class="mac-group-card" id="applianceGroupContainer">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <div class="tab-pane" id="pane-solar">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Solar & Net Grid</div>
+              <div class="section-subtitle">Simulate environmental weather impact on solar array generation</div>
+            </div>
+          </div>
+
+          <div class="mac-group-card">
+            <div class="mac-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+              <div class="mac-row-title">Weather Condition Simulation</div>
+              <div class="mac-segmented" id="weatherControl" style="width: 100%;">
+                <div class="mac-segmented-slider" id="weatherSlider"></div>
+                <button class="mac-segmented-btn active" data-weather="sunny" style="flex: 1;">Sunny (2.5 kW)</button>
+                <button class="mac-segmented-btn" data-weather="cloudy" style="flex: 1;">Cloudy (0.8 kW)</button>
+                <button class="mac-segmented-btn" data-weather="rainy" style="flex: 1;">Rainy (0.2 kW)</button>
+                <button class="mac-segmented-btn" data-weather="night" style="flex: 1;">Night (0.0 kW)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="pane-optimizer">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Peak Eco-Optimizer</div>
+              <div class="section-subtitle">Automated load shedding engine to prevent expensive tariff surges</div>
+            </div>
+          </div>
+
+          <div class="mac-group-card" style="padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+            <div style="font-size: 13px; font-weight: 600;">Shedding Reduction Target</div>
+            <div class="mac-segmented" id="targetControl">
+              <div class="mac-segmented-slider" id="targetSlider"></div>
+              <button class="mac-segmented-btn active" data-target="15">-15% Peak Cut</button>
+              <button class="mac-segmented-btn" data-target="25">-25% Peak Cut</button>
+              <button class="mac-segmented-btn" data-target="40">-40% Max Reduction</button>
+            </div>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+              The optimizer automatically toggles off non-essential flexible loads (EV Charger, Water Heater, AC) while safeguarding Essential devices (Refrigerator, Workstation, Smart Lighting).
+            </p>
+            <button class="mac-btn mac-btn-primary" id="btnRunOptimizer" style="align-self: flex-start;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Run Peak Optimization
+            </button>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="pane-load">
+          <div class="section-header">
+            <div>
+              <div class="section-title">24-Hour Load Profile</div>
+              <div class="section-subtitle">Dynamic 24h demand curve versus solar generation overlay</div>
+            </div>
+          </div>
+
+          <div class="mac-group-card" style="padding: 16px;">
+            <canvas id="chart24hCanvas"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="mac-sheet-overlay" id="addApplianceModal">
+    <div class="mac-sheet">
+      <div style="font-size: 15px; font-weight: 700; margin-bottom: 14px;">Add Smart Appliance</div>
+      
+      <div class="form-group">
+        <label class="form-label">Appliance Name</label>
+        <input type="text" class="form-input" id="newAppName" placeholder="e.g., Dishwasher">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Power Consumption (Watts)</label>
+        <input type="number" class="form-input" id="newAppWatts" placeholder="1200" value="1200">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Priority Classification</label>
+        <select class="form-select" id="newAppPriority">
+          <option value="flexible">Flexible (Sheddable during peak load)</option>
+          <option value="essential">Essential (Always active)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Icon Symbol</label>
+        <select class="form-select" id="newAppIcon">
+          <option value="plug">Plug</option>
+          <option value="ac">Air Conditioner</option>
+          <option value="charger">EV Charger</option>
+          <option value="heater">Heater</option>
+          <option value="computer">Computer</option>
+          <option value="lamp">Lighting</option>
+          <option value="fridge">Refrigerator</option>
+          <option value="fan">Ventilation Fan</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Badge Color</label>
+        <div class="color-picker-grid" id="colorPicker">
+          <div class="color-dot selected" data-color="#007aff" style="background-color: #007aff;"></div>
+          <div class="color-dot" data-color="#34c759" style="background-color: #34c759;"></div>
+          <div class="color-dot" data-color="#ff9500" style="background-color: #ff9500;"></div>
+          <div class="color-dot" data-color="#ff3b30" style="background-color: #ff3b30;"></div>
+          <div class="color-dot" data-color="#af52de" style="background-color: #af52de;"></div>
+          <div class="color-dot" data-color="#32ade6" style="background-color: #32ade6;"></div>
+          <div class="color-dot" data-color="#8e8e93" style="background-color: #8e8e93;"></div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
+        <button class="mac-btn mac-btn-secondary" id="btnCloseModal">Cancel</button>
+        <button class="mac-btn mac-btn-primary" id="btnSaveAppliance">Add Device</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SVG_ICONS = {
+      ac: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="10" rx="2"/><path d="M6 18h12M8 14v4M12 14v4M16 14v4"/></svg>`,
+      charger: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 18h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/><path d="M10 10l-2 4h4l-2 4"/><path d="M19 10h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2"/></svg>`,
+      heater: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 8c0-2 2-2 2-4M12 8c0-2 2-2 2-4M16 8c0-2 2-2 2-4"/><rect x="4" y="10" width="16" height="11" rx="2"/></svg>`,
+      computer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+      lamp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21h6M12 17v4M6 10l3-7h6l3 7H6z"/><path d="M8 10a4 4 0 0 0 8 0"/></svg>`,
+      fridge: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="8" y1="5" x2="8" y2="8"/><line x1="8" y1="13" x2="8" y2="17"/></svg>`,
+      plug: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22v-5M9 8V3M15 8V3M6 8h12a2 2 0 0 1 2 2v3a6 6 0 0 1-12 0v-3a2 2 0 0 1 2-2z"/></svg>`,
+      fan: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 10c0-3.5 2.5-6 5.5-6 1.5 0 2.5 1 2.5 2.5 0 3-2.5 5.5-6 5.5"/><path d="M10 12c-3.5 0-6 2.5-6 5.5 0 1.5 1 2.5 2.5 2.5 3 0 5.5-2.5 5.5-6"/><path d="M12 14c0 3.5-2.5 6-5.5 6-1.5 0-2.5-1-2.5-2.5 0-3 2.5-5.5 6-5.5"/><path d="M14 12c3.5 0 6-2.5 6-5.5 0-1.5-1-2.5-2.5-2.5-3 0-5.5 2.5-5.5 6"/></svg>`
+    };
+
+    const state = {
+      theme: 'dark',
+      activeTab: 'overview',
+      speed: 1,
+      solarYield: 1200,
+      weather: 'sunny',
+      selectedBadgeColor: '#007aff',
+      targetCutPct: 15,
+      appliances: [
+        { id: 'ac', name: 'Air Conditioner', watts: 1200, essential: false, active: true, color: '#32ade6', icon: 'ac' },
+        { id: 'ev', name: 'EV Fast Charger', watts: 7200, essential: false, active: false, color: '#ff9500', icon: 'charger' },
+        { id: 'heater', name: 'Water Heater', watts: 3000, essential: false, active: true, color: '#ff3b30', icon: 'heater' },
+        { id: 'pc', name: 'Desktop Workstation', watts: 350, essential: true, active: true, color: '#af52de', icon: 'computer' },
+        { id: 'lights', name: 'LED Smart Lighting', watts: 120, essential: true, active: true, color: '#34c759', icon: 'lamp' },
+        { id: 'fridge', name: 'Refrigerator', watts: 180, essential: true, active: true, color: '#007aff', icon: 'fridge' }
+      ]
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initTabs();
+      initSegmentedControls();
+      renderAppliances();
+      initModal();
+      startFlowAnimation();
+      render24hChart();
+    });
+
+    function initTheme() {
+      const toggleBtn = document.getElementById('themeToggle');
+      toggleBtn.addEventListener('click', () => {
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', state.theme);
+        document.getElementById('themeIcon').innerHTML = state.theme === 'dark' 
+          ? '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'
+          : '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+        render24hChart();
+      });
+    }
+
+    function initTabs() {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const tabKey = item.getAttribute('data-tab');
+          navItems.forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+
+          document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+          document.getElementById(`pane-${tabKey}`).classList.add('active');
+          if (tabKey === 'load') render24hChart();
+        });
+      });
+    }
+
+    function initSegmentedControls() {
+      setupSegmented('speedControl', 'speedSlider', (btn) => {
+        state.speed = parseInt(btn.getAttribute('data-speed'));
+      });
+
+      setupSegmented('weatherControl', 'weatherSlider', (btn) => {
+        const w = btn.getAttribute('data-weather');
+        state.weather = w;
+        if (w === 'sunny') state.solarYield = 2500;
+        if (w === 'cloudy') state.solarYield = 800;
+        if (w === 'rainy') state.solarYield = 200;
+        if (w === 'night') state.solarYield = 0;
+        updateTelemetry();
+        render24hChart();
+      });
+
+      setupSegmented('targetControl', 'targetSlider', (btn) => {
+        state.targetCutPct = parseInt(btn.getAttribute('data-target'));
+      });
+    }
+
+    function setupSegmented(containerId, sliderId, callback) {
+      const container = document.getElementById(containerId);
+      const slider = document.getElementById(sliderId);
+      const buttons = container.querySelectorAll('.mac-segmented-btn');
+
+      function updateSlider(btn) {
+        slider.style.width = `${btn.offsetWidth}px`;
+        slider.style.transform = `translateX(${btn.offsetLeft - 2}px)`;
+      }
+
+      buttons.forEach((btn, idx) => {
+        if (idx === 0) updateSlider(btn);
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateSlider(btn);
+          callback(btn);
+        });
+      });
+    }
+
+    function renderAppliances() {
+      const container = document.getElementById('applianceGroupContainer');
+      container.innerHTML = '';
+
+      state.appliances.forEach(app => {
+        const row = document.createElement('div');
+        row.className = 'mac-row';
+        row.innerHTML = `
+          <div class="mac-row-left">
+            <div class="squircle-badge" style="--badge-bg: ${app.color};">
+              ${SVG_ICONS[app.icon] || SVG_ICONS.plug}
+            </div>
+            <div>
+              <div class="mac-row-title">${app.name}</div>
+              <div class="mac-row-subtext">
+                ${app.watts} W &bull; 
+                <span class="tag-priority ${app.essential ? 'tag-essential' : 'tag-flexible'}">
+                  ${app.essential ? 'Essential' : 'Flexible'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="mac-row-right">
+            <label class="mac-switch">
+              <input type="checkbox" ${app.active ? 'checked' : ''} data-id="${app.id}">
+              <span class="mac-slider"></span>
+            </label>
+          </div>
+        `;
+
+        const checkbox = row.querySelector('input');
+        checkbox.addEventListener('change', (e) => {
+          app.active = e.target.checked;
+          updateTelemetry();
+          render24hChart();
+        });
+
+        container.appendChild(row);
+      });
+
+      updateTelemetry();
+    }
+
+    function initModal() {
+      const overlay = document.getElementById('addApplianceModal');
+      const btnOpen = document.getElementById('btnOpenAddModal');
+      const btnClose = document.getElementById('btnCloseModal');
+      const btnSave = document.getElementById('btnSaveAppliance');
+      const colorDots = document.querySelectorAll('.color-dot');
+
+      btnOpen.addEventListener('click', () => overlay.classList.add('active'));
+      btnClose.addEventListener('click', () => overlay.classList.remove('active'));
+
+      colorDots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          colorDots.forEach(d => d.classList.remove('selected'));
+          dot.classList.add('selected');
+          state.selectedBadgeColor = dot.getAttribute('data-color');
+        });
+      });
+
+      btnSave.addEventListener('click', () => {
+        const name = document.getElementById('newAppName').value.trim();
+        const watts = parseInt(document.getElementById('newAppWatts').value);
+        const priority = document.getElementById('newAppPriority').value;
+        const icon = document.getElementById('newAppIcon').value;
+
+        if (!name || isNaN(watts)) return;
+
+        const newApp = {
+          id: 'app_' + Date.now(),
+          name: name,
+          watts: watts,
+          essential: priority === 'essential',
+          active: true,
+          color: state.selectedBadgeColor,
+          icon: icon
+        };
+
+        state.appliances.push(newApp);
+        renderAppliances();
+
+        document.getElementById('newAppName').value = '';
+        overlay.classList.remove('active');
+      });
+    }
+
+    document.getElementById('btnRunOptimizer').addEventListener('click', () => {
+      const currentTotal = state.appliances.filter(a => a.active).reduce((sum, a) => sum + a.watts, 0);
+      const targetWatts = currentTotal * (1 - state.targetCutPct / 100);
+
+      let accumulated = currentTotal;
+      const nonEssentials = state.appliances.filter(a => a.active && !a.essential).sort((a,b) => b.watts - a.watts);
+
+      for (let app of nonEssentials) {
+        if (accumulated <= targetWatts) break;
+        app.active = false;
+        accumulated -= app.watts;
+      }
+
+      renderAppliances();
+      render24hChart();
+    });
+
+    function updateTelemetry() {
+      const totalWatts = state.appliances.filter(a => a.active).reduce((sum, a) => sum + a.watts, 0);
+      const activeCount = state.appliances.filter(a => a.active).length;
+      const kw = (totalWatts / 1000).toFixed(2);
+
+      document.getElementById('valInstantPower').innerText = `${kw} kW`;
+      document.getElementById('valActiveCount').innerText = `${activeCount} Active Loads`;
+
+      const solarKw = (state.solarYield / 1000).toFixed(2);
+      document.getElementById('valSolarOutput').innerText = `${solarKw} kW`;
+
+      const netGridKw = totalWatts - state.solarYield;
+      const flowElem = document.getElementById('valNetGridFlow');
+      if (netGridKw > 0) {
+        flowElem.innerText = `Importing ${(netGridKw/1000).toFixed(2)} kW from Grid`;
+        flowElem.style.color = 'var(--accent-orange)';
+      } else {
+        flowElem.innerText = `Exporting ${(Math.abs(netGridKw)/1000).toFixed(2)} kW to Grid`;
+        flowElem.style.color = 'var(--accent-green)';
+      }
+
+      const co2Grams = Math.max(0, netGridKw / 1000) * 450 / 60;
+      document.getElementById('valCo2Rate').innerText = `${co2Grams.toFixed(1)} g/min`;
+    }
+
+    function startFlowAnimation() {
+      const canvas = document.getElementById('flowCanvas');
+      const ctx = canvas.getContext('2d');
+      let particleOffset = 0;
+
+      function draw() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Grid Base Line
+        ctx.beginPath();
+        ctx.strokeStyle = state.theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+        ctx.lineWidth = 3;
+        ctx.moveTo(30, canvas.height / 2);
+        ctx.lineTo(canvas.width - 30, canvas.height / 2);
+        ctx.stroke();
+
+        // Particles
+        particleOffset = (particleOffset + 1.5 * state.speed) % 30;
+        ctx.fillStyle = '#007aff';
+        for (let x = 30 + particleOffset; x < canvas.width - 30; x += 30) {
+          ctx.beginPath();
+          ctx.arc(x, canvas.height / 2, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    function render24hChart() {
+      const canvas = document.getElementById('chart24hCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const totalWatts = state.appliances.filter(a => a.active).reduce((sum, a) => sum + a.watts, 0) / 1000;
+
+      // Draw Demand Curve
+      ctx.beginPath();
+      ctx.strokeStyle = '#007aff';
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i <= 24; i++) {
+        const x = (i / 24) * canvas.width;
+        const loadVal = totalWatts * (0.6 + 0.4 * Math.sin((i / 24) * Math.PI * 2 - Math.PI / 2));
+        const y = canvas.height - (loadVal / 10) * canvas.height - 15;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Draw Solar Yield Curve
+      ctx.beginPath();
+      ctx.strokeStyle = '#34c759';
+      ctx.lineWidth = 2.5;
+      const maxSolar = state.solarYield / 1000;
+      for (let i = 0; i <= 24; i++) {
+        const x = (i / 24) * canvas.width;
+        let solarVal = 0;
+        if (i >= 6 && i <= 18) {
+          solarVal = maxSolar * Math.sin(((i - 6) / 12) * Math.PI);
+        }
+        const y = canvas.height - (solarVal / 10) * canvas.height - 15;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  </script>
+</body>
+</html>
